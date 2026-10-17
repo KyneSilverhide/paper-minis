@@ -11,19 +11,25 @@ Upload character images, each with an optional description. paper-minis draws a 
 The web page walks you through everything, in English or French: connecting ComfyUI, installing the models, then
 generating, printing, cutting and assembling.
 
+![The paper-minis page: ComfyUI connected, models ready, five generated characters](docs/screenshot.png)
+
+![A print sheet: five fold-over figures with black borders and bases inside the registration frame](docs/sheet.png)
+
 ## Quick start
 
 1. Install [Docker](https://docs.docker.com/get-docker/).
-2. Get paper-minis and start it:
+2. Start paper-minis:
    ```bash
-   git clone https://github.com/KyneSilverhide/paper-minis.git
-   cd paper-minis
-   docker compose up -d --build
+   docker run -d --name paper-minis -p 8080:8080 --add-host host.docker.internal:host-gateway \
+     -v paper-minis-data:/data --restart unless-stopped ghcr.io/kynesilverhide/paper-minis
    ```
+   Or with Docker Compose: download [`docker-compose.yml`](docker-compose.yml) and run `docker compose up -d` next to it.
 3. Open <http://localhost:8080> and follow the steps on the page.
 
 You also need ComfyUI (free) running on a computer with a capable graphics card: about 24 GB of video memory is comfortable,
 12–16 GB works more slowly. The page explains how to install ComfyUI, connect it and get the models.
+
+The image runs on x86-64 and ARM64 (Apple Silicon, Raspberry Pi…).
 
 ## How it works
 
@@ -46,7 +52,11 @@ All optional, in `docker-compose.yml` or as environment variables:
 | `PUID` / `PGID` | `1000` | User the app runs as (`id -u`, `id -g`), so downloaded models belong to you. |
 | `MAX_UPLOAD_MB` | `25` | Largest accepted upload. |
 
-Figures and sheets are kept in the `paper-minis-data` Docker volume. To update: `git pull`, then `docker compose up -d --build`.
+Figures and sheets are kept in the `paper-minis-data` Docker volume, so they survive updates.
+
+To update: `docker compose pull && docker compose up -d` (with `docker run`: `docker pull ghcr.io/kynesilverhide/paper-minis`, then remove and recreate the container).
+
+To change the code, clone this repository and use `build: .` in `docker-compose.yml`, then `docker compose up -d --build`.
 
 The app has no login: anyone who can reach its port can use it. Keep it on your own computer or home network.
 
@@ -60,5 +70,5 @@ The app has no login: anyone who can reach its port can use it. Keep it on your 
 ## En français
 
 paper-minis transforme des illustrations de personnages en **figurines en papier pliables** pour le jeu de rôle,
-avec ton propre ComfyUI. Installe Docker, lance `docker compose up -d --build` dans ce dossier, ouvre <http://localhost:8080> :
+avec ton propre ComfyUI. Installe Docker, lance la commande `docker run` ci-dessus (ou `docker compose up -d`), ouvre <http://localhost:8080> :
 la page, disponible en français, te guide pas à pas. Elle explique comment installer et connecter ComfyUI, récupérer les modèles, puis générer, imprimer, découper et assembler.

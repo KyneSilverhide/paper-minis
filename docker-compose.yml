@@ -1,12 +1,14 @@
 services:
   paper-minis:
-    build: .
+    image: ghcr.io/kynesilverhide/paper-minis:latest
+    # to run your own changes instead: comment the line above and uncomment the next one
+    # build: .
     ports:
       - "${PORT:-8080}:8080"
-    # run as your user so downloaded models and results are yours (`id -u` / `id -g`)
+    # run as your user so downloaded models belong to you (`id -u` / `id -g`)
     user: "${PUID:-1000}:${PGID:-1000}"
     environment:
-      # ComfyUI on this machine, started with --listen. ComfyUI Desktop uses port 8000.
+      # where ComfyUI is; can also be changed from the web page
       COMFYUI_URL: http://host.docker.internal:8188
       # optional: lets the page download missing models into your ComfyUI (see the volume below)
       # COMFYUI_MODELS_DIR: /models
@@ -15,6 +17,7 @@ services:
     volumes:
       - paper-minis-data:/data
       # - /path/to/ComfyUI/models:/models
+    restart: unless-stopped
 
 volumes:
   paper-minis-data:
