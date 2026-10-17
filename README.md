@@ -29,7 +29,7 @@ generating, printing, cutting and assembling.
 You also need ComfyUI (free) running on a computer with a capable graphics card: about 24 GB of video memory is comfortable,
 12–16 GB works more slowly. The page explains how to install ComfyUI, connect it and get the models.
 
-The image runs on x86-64 and ARM64 (Apple Silicon, Raspberry Pi…).
+paper-minis itself needs no graphics card: it can run on the same computer as ComfyUI, or on a small always-on machine (NAS, home server, even a Raspberry Pi) that sends the work to ComfyUI on your gaming PC. The image is available for x86-64 and ARM64.
 
 ## How it works
 
