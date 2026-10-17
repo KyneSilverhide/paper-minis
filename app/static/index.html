@@ -148,11 +148,20 @@ const T = {
       <li>Create a free <a href="https://huggingface.co/join" target="_blank" rel="noopener">Hugging Face account</a> (or log in).</li>
       <li>Open <a href="{page}" target="_blank" rel="noopener">the model page</a> and accept the license.</li></ol>`,
     tokenstep: `<ol start="3"><li>Create a <b>Read</b> token on <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a> and paste it below. It is only used for this download and never saved.</li></ol>`,
-    token: "Hugging Face token", missingdl: "Download the missing models", queued: "waiting",
-    manual: `<h3>Download them</h3><p>Download each missing file and put it in your ComfyUI <code>models</code> folder, then click <b>Check again</b>:</p>`,
-    where: `<p class="muted">Where is the <code>models</code> folder? ComfyUI Desktop: inside the folder chosen at install time. Portable: <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Manual install: <code>ComfyUI/models</code>. ComfyUI sees new files without restarting.</p>`,
-    auto: `<details><summary>Let paper-minis download them for you</summary><p class="muted">In <code>docker-compose.yml</code>, uncomment <code>COMFYUI_MODELS_DIR: /models</code> and the volume line, set it to your ComfyUI models folder (e.g. <code>/home/me/ComfyUI/models:/models</code>), then run <code>docker compose up -d</code> again.</p></details>`,
-    recheck: "Check again",
+    token: "Hugging Face token", missingdl: "Download", queued: "waiting",
+    easy: `<h3>Easiest: let paper-minis download them</h3><p>Restart paper-minis with access to your ComfyUI models folder: copy this command into a terminal, run it, then reload this page.</p>`,
+    easyrun: "If you started paper-minis with docker run:", easycompose: "If you use docker-compose.yml, set these lines, then run <code>docker compose up -d</code>:",
+    copy: "Copy", copied: "Copied!",
+    manual: `<h3>Or download them yourself</h3><p>Click each link (your browser downloads the file) and save it into the folder shown. This page turns green on its own once ComfyUI sees the files.</p>`,
+    gatedmanual: "for this one, log in to Hugging Face and accept the license first (see above), otherwise the link refuses the download",
+    where: `<p class="muted">Where is the <code>models</code> folder? ComfyUI Desktop: inside the folder chosen at install time. Portable: <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Manual install: <code>ComfyUI/models</code>.</p>`,
+    remote: `<p class="muted">ComfyUI runs on another computer: download the files there.</p>`,
+    no_token: "Paste your token first.", bad_token: "This token is not valid: create a new Read token.",
+    license_err: "Access refused: accept the license on the model page with the same Hugging Face account, then try again.",
+    interrupted: "Download interrupted: click Download again to resume.",
+    notseen: "downloaded, but ComfyUI doesn't see it: the mounted folder is not the models folder ComfyUI uses.",
+    freestarted: "The files that need no license are downloading.",
+    readonly: `<p class="err">paper-minis can't write into the mounted models folder. Start it as your own user (<code>--user "$(id -u):$(id -g)"</code>, already in the command below) and check that the folder exists and belongs to you.</p>`,
     s3help: `<ul><li>One character per image, any style: painting, photo, drawing. It may be cropped at the waist, legs and boots are completed.</li>
       <li>The description is optional but helps a lot: class, gear, anything the image doesn't show or the model gets wrong. E.g. <i>a tiefling rogue holding 2 daggers, purple skin, golden eyes</i>. English or French.</li>
       <li>Only describe what should appear: even "no shield" tends to add a shield.</li></ul>`,
@@ -196,11 +205,20 @@ const T = {
       <li>Crée un <a href="https://huggingface.co/join" target="_blank" rel="noopener">compte Hugging Face</a> gratuit (ou connecte-toi).</li>
       <li>Ouvre <a href="{page}" target="_blank" rel="noopener">la page du modèle</a> et accepte la licence.</li></ol>`,
     tokenstep: `<ol start="3"><li>Crée un jeton <b>Read</b> sur <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a> et colle-le ci-dessous. Il ne sert qu'à ce téléchargement et n'est jamais enregistré.</li></ol>`,
-    token: "Jeton Hugging Face", missingdl: "Télécharger les modèles manquants", queued: "en attente",
-    manual: `<h3>Les télécharger</h3><p>Télécharge chaque fichier manquant et place-le dans le dossier <code>models</code> de ComfyUI, puis clique sur <b>Vérifier à nouveau</b> :</p>`,
-    where: `<p class="muted">Où est le dossier <code>models</code> ? ComfyUI Desktop : dans le dossier choisi à l'installation. Portable : <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Installation manuelle : <code>ComfyUI/models</code>. ComfyUI voit les nouveaux fichiers sans redémarrer.</p>`,
-    auto: `<details><summary>Laisser paper-minis les télécharger pour toi</summary><p class="muted">Dans <code>docker-compose.yml</code>, décommente <code>COMFYUI_MODELS_DIR: /models</code> et la ligne de volume, mets-y ton dossier models de ComfyUI (par ex. <code>/home/moi/ComfyUI/models:/models</code>), puis relance <code>docker compose up -d</code>.</p></details>`,
-    recheck: "Vérifier à nouveau",
+    token: "Jeton Hugging Face", missingdl: "Télécharger", queued: "en attente",
+    easy: `<h3>Le plus simple : laisser paper-minis les télécharger</h3><p>Relance paper-minis avec accès au dossier models de ton ComfyUI : copie cette commande dans un terminal, exécute-la, puis recharge cette page.</p>`,
+    easyrun: "Si tu as lancé paper-minis avec docker run :", easycompose: "Si tu utilises docker-compose.yml, mets ces lignes, puis lance <code>docker compose up -d</code> :",
+    copy: "Copier", copied: "Copié !",
+    manual: `<h3>Ou les télécharger toi-même</h3><p>Clique sur chaque lien (ton navigateur télécharge le fichier) et enregistre-le dans le dossier indiqué. Cette page passe au vert toute seule dès que ComfyUI voit les fichiers.</p>`,
+    gatedmanual: "pour celui-ci, connecte-toi à Hugging Face et accepte d'abord la licence (voir plus haut), sinon le lien refuse le téléchargement",
+    where: `<p class="muted">Où est le dossier <code>models</code> ? ComfyUI Desktop : dans le dossier choisi à l'installation. Portable : <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Installation manuelle : <code>ComfyUI/models</code>.</p>`,
+    remote: `<p class="muted">ComfyUI tourne sur un autre ordinateur : télécharge les fichiers sur celui-ci.</p>`,
+    no_token: "Colle d'abord ton jeton.", bad_token: "Ce jeton n'est pas valide : crée un nouveau jeton Read.",
+    license_err: "Accès refusé : accepte la licence sur la page du modèle avec le même compte Hugging Face, puis réessaie.",
+    interrupted: "Téléchargement interrompu : clique à nouveau sur Télécharger pour reprendre.",
+    notseen: "téléchargé, mais ComfyUI ne le voit pas : le dossier monté n'est pas le dossier models qu'utilise ComfyUI.",
+    freestarted: "Les fichiers sans licence à accepter sont en cours de téléchargement.",
+    readonly: `<p class="err">paper-minis ne peut pas écrire dans le dossier models monté. Lance-le avec ton propre utilisateur (<code>--user "$(id -u):$(id -g)"</code>, déjà dans la commande ci-dessous) et vérifie que le dossier existe et t'appartient.</p>`,
     s3help: `<ul><li>Un personnage par image, n'importe quel style : peinture, photo, dessin. Elle peut être coupée à la taille : jambes et bottes sont complétées.</li>
       <li>La description est facultative mais aide beaucoup : classe, équipement, tout ce que l'image ne montre pas ou que le modèle rate. Ex. <i>une tieffeline roublarde avec 2 dagues, peau violette, yeux dorés</i>. En français ou en anglais.</li>
       <li>Ne décris que ce qui doit apparaître : même « sans bouclier » a tendance à ajouter un bouclier.</li></ul>`,
@@ -232,7 +250,7 @@ function applyLang() {
   document.documentElement.lang = lang; $("#lang").value = lang;
   document.querySelectorAll("[data-t]").forEach((el) => el.textContent = t(el.dataset.t));
   document.querySelectorAll("[data-html]").forEach((el) => el.innerHTML = t(el.dataset.html));
-  $("#dl")?.remove();
+  $("#dl")?.remove(); delete $("#s2help").dataset.html;
   renderStatus(); renderPending(); renderFigures();
 }
 $("#lang").onchange = (e) => { lang = e.target.value; try { localStorage.setItem("lang", lang); } catch {} applyLang(); };
@@ -250,7 +268,8 @@ async function refreshStatus() {
   try { status = await api("/api/status"); } catch (e) { status = {error: e.message, models: {}, missing_nodes: []}; }
   renderStatus();
   const busy = Object.values(status.models || {}).some((m) => ["queued", "downloading"].includes(m.download.status));
-  statusTimer = setTimeout(refreshStatus, busy ? 1500 : 10000);
+  const waiting = status.comfyui && Object.values(status.models || {}).some((m) => !m.selected);
+  statusTimer = setTimeout(refreshStatus, busy ? 1500 : waiting ? 4000 : 10000);
 }
 $("#test").onclick = async () => {
   $("#test").disabled = true;
@@ -292,7 +311,8 @@ function renderStatus() {
     const d = m.download;
     const prog = d.status === "downloading" ? ` <progress value="${d.done}" max="${d.total || 1}"></progress> ${(d.done / 1e9).toFixed(1)} / ${(d.total / 1e9).toFixed(1)} GB`
       : d.status === "queued" ? ` <span class="muted">${t("queued")}</span>`
-      : d.status === "error" ? ` <span class="err">${esc(d.error)}</span>` : "";
+      : d.status === "error" ? ` <span class="err">${esc(errText(d.error))}</span>`
+      : d.status === "done" && !m.available.includes(m.official) ? ` <span class="warn">${t("notseen")}</span>` : "";
     return `<span>${m.selected ? "✅" : "⬜"} ${t(role)}</span><span><select data-role="${role}" aria-label="${t(role)}">${opts}</select>
       <span class="muted">${t("official")} : ${esc(m.official)} (${esc(m.size)})</span>${prog}</span>`;
   }).join("");
@@ -301,24 +321,58 @@ function renderStatus() {
   });
 
   const missing = roles.filter(([, m]) => !m.selected && m.download.status !== "done");
-  if (!missing.length) { $("#s2help").innerHTML = step2 ? `<p class="ok">${t("allok")}</p>` : ""; return; }
+  if (!missing.length) { delete $("#s2help").dataset.html; $("#s2help").innerHTML = step2 ? `<p class="ok">${t("allok")}</p>` : ""; return; }
   const gated = missing.find(([, m]) => m.gated);
   const lic = gated ? t("license").replace("{page}", esc(gated[1].page)) : "";
   if (status.can_download) {
     if ($("#dl")) return;  // keep a token being typed
     $("#s2help").innerHTML = `<div class="help" id="dl">${lic}${gated ? t("tokenstep") +
       `<label>${t("token")}<br><input id="token" type="password" autocomplete="off" style="width:min(420px,100%)"></label><br>` : ""}
-      <button id="dlbtn" class="primary" style="margin-top:8px">${t("missingdl")}</button></div>`;
+      <button id="dlbtn" class="primary" style="margin-top:8px">${t("missingdl")}</button> <span id="dlmsg"></span></div>`;
     $("#dlbtn").onclick = async () => {
-      try { await api("/api/models/download", json({roles: missing.map(([r]) => r), token: $("#token")?.value || ""})); } catch (e) { alert(e.message); }
-      $("#dl").remove(); refreshStatus();
+      $("#dlbtn").disabled = true;
+      try {
+        const r = await api("/api/models/download", json({roles: missing.map(([r]) => r), token: $("#token")?.value || ""}));
+        $("#dlmsg").innerHTML = r.gated_error ? `<span class="err">${esc(errText(r.gated_error))}</span>` + (r.started.length ? ` <span class="muted">${t("freestarted")}</span>` : "") : "";
+        if (!r.gated_error) $("#dl").remove();
+      } catch (e) { alert(e.message); }
+      if ($("#dlbtn")) $("#dlbtn").disabled = false;
+      refreshStatus();
     };
-  } else {
-    $("#s2help").innerHTML = `<div class="help">${lic}${t("manual")}<ul>` + missing.map(([role, m]) =>
-      `<li>${t(role)} : <a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.official)}</a> (${esc(m.size)}) → <code>models/${esc(m.folder)}/</code></li>`).join("") +
-      `</ul>${t("where")}<button id="recheck">${t("recheck")}</button>${t("auto")}</div>`;
-    $("#recheck").onclick = refreshStatus;
+    return;
   }
+  // no models folder mounted: offer the one-command switch to automatic downloads, and manual links
+  if ($("#s2help").contains(document.activeElement)) return;
+  let html = (status.models_read_only ? t("readonly") : "") + lic;
+  if (status.comfy_local && status.models_root) {
+    const win = status.comfy_os === "win32", port = location.port || "80";
+    const root = status.models_root;
+    const run = win
+      ? `docker rm -f paper-minis\ndocker run -d --name paper-minis -p ${port}:8080 --add-host host.docker.internal:host-gateway -v paper-minis-data:/data -v "${root}:/models" -e COMFYUI_MODELS_DIR=/models --restart unless-stopped ghcr.io/kynesilverhide/paper-minis`
+      : `docker rm -f paper-minis\ndocker run -d --name paper-minis -p ${port}:8080 --add-host host.docker.internal:host-gateway --user "$(id -u):$(id -g)" -v paper-minis-data:/data -v "${root}:/models" -e COMFYUI_MODELS_DIR=/models --restart unless-stopped ghcr.io/kynesilverhide/paper-minis`;
+    const compose = `    environment:\n      COMFYUI_MODELS_DIR: /models\n    volumes:\n      - paper-minis-data:/data\n      - "${root}:/models"`;
+    html += `${t("easy")}<p class="muted">${t("easyrun")}</p>${codeBlock(run)}<p class="muted">${t("easycompose")}</p>${codeBlock(compose)}`;
+  }
+  html += t("manual") + "<ul>" + missing.map(([role, m]) =>
+    `<li>${t(role)} : <a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.official)}</a> (${esc(m.size)}) → <code>${esc(m.dest || "models/" + m.folder + "/")}</code>` +
+    (m.gated ? `<br><span class="muted">${t("gatedmanual")}</span>` : "") + "</li>").join("") + "</ul>" +
+    (status.comfy_local ? (status.models_root ? "" : t("where")) : t("remote"));
+  if ($("#s2help").dataset.html !== html) {  // don't rebuild every poll: it would reset text selection
+    $("#s2help").dataset.html = html;
+    $("#s2help").innerHTML = `<div class="help">${html}</div>`;
+    $("#s2help").querySelectorAll("[data-copy]").forEach((b) => b.onclick = async () => {
+      try { await navigator.clipboard.writeText(b.nextElementSibling.textContent); b.textContent = t("copied"); }
+      catch { const r = document.createRange(); r.selectNodeContents(b.nextElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); }
+    });
+  }
+}
+
+function codeBlock(text) {
+  return `<div style="position:relative"><button data-copy style="position:absolute;right:6px;top:6px">${t("copy")}</button><pre style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 84px 10px 10px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;font-size:12.5px;margin:6px 0">${esc(text)}</pre></div>`;
+}
+
+function errText(code) {
+  return {no_token: t("no_token"), bad_token: t("bad_token"), license: t("license_err"), interrupted: t("interrupted")}[code] || code;
 }
 
 // step 3: upload, one description per image

@@ -26,6 +26,13 @@ class Comfy:
     def object_info(self):
         return self._get("/object_info").json()
 
+    def folder_paths(self):
+        """Where ComfyUI keeps each model folder, on its own machine. Internal ComfyUI route: {} if unavailable."""
+        try:
+            return self._get("/internal/folder_paths", timeout=5).json()
+        except (requests.RequestException, ValueError):
+            return {}
+
     def models(self, folder):
         return self._get(f"/models/{folder}").json()
 

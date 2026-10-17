@@ -2,7 +2,9 @@
 ComfyUI, and download print sheets (PNG/PDF) with the matching laser-cut SVG."""
 import io
 import json
+import ntpath
 import os
+import posixpath
 import queue
 import re
 import shutil
@@ -21,7 +23,7 @@ from pydantic import BaseModel
 
 from . import figure, workflow
 from .comfy import Comfy, ComfyError
-from .models import MODELS, Downloader, pick
+from .models import MODELS, Downloader, check_access, pick
 
 COMFYUI_URL = os.environ.get("COMFYUI_URL", "http://127.0.0.1:8188")
 DATA_DIR = os.environ.get("DATA_DIR", "data")
@@ -113,16 +115,26 @@ for fid in figure_ids():
 @app.get("/api/status")
 def status():
     out = {"comfyui_url": comfy.url, "comfyui": False, "error": "", "missing_nodes": [], "models": {},
-           "can_download": downloader.models_dir is not None, "in_docker": os.path.exists("/.dockerenv")}
+           "can_download": downloader.models_dir is not None and not downloader.read_only,
+           "models_read_only": downloader.read_only, "in_docker": os.path.exists("/.dockerenv"),
+           "comfy_os": "", "comfy_local": urlparse(comfy.url).hostname in ("host.docker.internal", "localhost", "127.0.0.1", "::1"),
+           "models_root": ""}
     try:
-        comfy.system_stats()
+        out["comfy_os"] = comfy.system_stats().get("system", {}).get("os", "")
         out["comfyui"] = True
         out["missing_nodes"] = workflow.missing_nodes(comfy.object_info())
         saved = settings().get("models", {})
+        paths = comfy.folder_paths()
+        path = ntpath if out["comfy_os"] == "win32" else posixpath
         for role, spec in MODELS.items():
+            dirs = paths.get(spec["folder"], [])
+            # e.g. diffusion_models lists models/unet first: prefer the folder named like the role
+            dest = next((d for d in dirs if path.basename(path.normpath(d)) == spec["folder"]), dirs[0] if dirs else "")
+            if dest and not out["models_root"]:
+                out["models_root"] = path.dirname(path.normpath(dest))
             available = comfy.models(spec["folder"])
             out["models"][role] = {"available": available, "selected": pick(role, available, saved.get(role)),
-                                   "official": spec["file"], "folder": spec["folder"], "page": spec["page"], "url": spec["url"],
+                                   "official": spec["file"], "folder": spec["folder"], "dest": dest, "page": spec["page"], "url": spec["url"],
                                    "size": spec["size"], "gated": spec["gated"], "download": downloader.state[role]}
     except Exception as e:
         out["error"] = str(e)
@@ -167,10 +179,16 @@ class DownloadRequest(BaseModel):
 
 @app.post("/api/models/download")
 def download(req: DownloadRequest):
+    """Start the free models right away; the gated one only once the token is checked."""
     if downloader.models_dir is None:
         raise HTTPException(400, "ComfyUI's models directory is not mounted in this container")
-    downloader.start(req.roles, req.token.strip())
-    return {"ok": True}
+    token = req.token.strip()
+    gated = [r for r in req.roles if r in MODELS and MODELS[r]["gated"]]
+    error = check_access(token) if gated else ""
+    roles = [r for r in req.roles if r in MODELS and (not MODELS[r]["gated"] or not error)]
+    if roles:
+        downloader.start(roles, token)
+    return {"started": roles, "gated_error": error}
 
 
 @app.post("/api/figures")

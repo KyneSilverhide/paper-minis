@@ -43,9 +43,24 @@ def pick(role, available, saved):
     return MODELS[role]["file"] if MODELS[role]["file"] in available else None
 
 
+def check_access(token):
+    """Can this token download the gated model? -> "" if yes, else an error code shown by the page."""
+    if not token:
+        return "no_token"
+    spec = next(m for m in MODELS.values() if m["gated"])
+    r = requests.head(spec["url"], headers={"Authorization": f"Bearer {token}"}, allow_redirects=False, timeout=30)
+    if r.status_code == 401:
+        return "bad_token"
+    if r.status_code == 403:
+        return "license"
+    return "" if r.status_code < 400 else f"HTTP {r.status_code}"
+
+
 class Downloader:
     def __init__(self, models_dir):
         self.models_dir = models_dir if models_dir and os.path.isdir(models_dir) else None
+        # mounted but not writable: usually created by Docker as root, or the container runs as another user
+        self.read_only = bool(self.models_dir) and not os.access(self.models_dir, os.W_OK)
         self.state = {role: {"status": "idle", "done": 0, "total": 0, "error": ""} for role in MODELS}
         self.lock = threading.Lock()
 
@@ -72,14 +87,13 @@ class Downloader:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         have = os.path.getsize(part) if os.path.exists(part) else 0
         headers = {"Range": f"bytes={have}-"} if have else {}
-        if spec["gated"] and token:
+        if spec["gated"]:
             # requests drops this header when Hugging Face redirects to its CDN, so it never leaves huggingface.co
             headers["Authorization"] = f"Bearer {token}"
         st["status"] = "downloading"
         with requests.get(spec["url"], headers=headers, stream=True, timeout=60) as r:
             if r.status_code in (401, 403):
-                raise PermissionError(f"Access refused: open {spec['page']}, accept the license, "
-                                      "then paste a Hugging Face read token")
+                raise PermissionError("license")
             r.raise_for_status()
             if r.status_code != 206:
                 have = 0
@@ -89,5 +103,5 @@ class Downloader:
                     f.write(chunk)
                     st["done"] += len(chunk)
         if os.path.getsize(part) != st["total"]:
-            raise IOError("Download interrupted, click again to resume")
+            raise IOError("interrupted")
         os.replace(part, dest)
