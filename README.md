@@ -3,6 +3,8 @@
 Turn character illustrations into **fold-over paper miniatures** for tabletop games, using your own
 [ComfyUI](https://github.com/Comfy-Org/ComfyUI) and the FLUX.2 [klein] 9B image model.
 
+![Five character illustrations, the figure generated from each, and the unfolded printable version](docs/before-after.jpg)
+
 Upload character images, each with an optional description. paper-minis draws a clean full-body figure of each one, then gives you print-ready sheets:
 
 - **PDF / PNG sheets** at true size. Each figure gets a black border, a black base, and a mirrored back side joined at the base.
@@ -11,9 +13,9 @@ Upload character images, each with an optional description. paper-minis draws a 
 The web page walks you through everything, in English or French: connecting ComfyUI, installing the models, then
 generating, printing, cutting and assembling.
 
-![The paper-minis page: ComfyUI connected, models ready, five generated characters](docs/screenshot.png)
+![The paper-minis page: ComfyUI connected, models ready, five generated characters](docs/screenshot.jpg)
 
-![A print sheet: five fold-over figures with black borders and bases inside the registration frame](docs/sheet.png)
+![A print sheet: five fold-over figures with black borders and bases inside the registration frame](docs/sheet.jpg)
 
 ## Quick start
 
