@@ -1,0 +1,20 @@
+services:
+  paper-minis:
+    build: .
+    ports:
+      - "${PORT:-8080}:8080"
+    # run as your user so downloaded models and results are yours (`id -u` / `id -g`)
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      # ComfyUI on this machine, started with --listen. ComfyUI Desktop uses port 8000.
+      COMFYUI_URL: http://host.docker.internal:8188
+      # optional: lets the page download missing models into your ComfyUI (see the volume below)
+      # COMFYUI_MODELS_DIR: /models
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - paper-minis-data:/data
+      # - /path/to/ComfyUI/models:/models
+
+volumes:
+  paper-minis-data:

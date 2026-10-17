@@ -1,0 +1,8 @@
+fastapi==0.143.3
+uvicorn==0.54.0
+python-multipart==0.0.32
+requests==2.34.2
+numpy==2.5.4
+scipy==1.18.1
+opencv-python-headless==5.0.0.93
+pillow==13.0.0

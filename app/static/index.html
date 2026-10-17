@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>paper-minis</title>
+<style>
+:root { --bg: #f6f4ef; --card: #ffffff; --ink: #1d1b18; --muted: #6b665d; --line: #ddd8cc; --soft: #f0ece3; --accent: #8a3b12; --ok: #2f7d32; --warn: #b26a00; --err: #b3261e; }
+@media (prefers-color-scheme: dark) { :root { --bg: #17161a; --card: #222127; --ink: #ece9e2; --muted: #a39e94; --line: #38363d; --soft: #2b2a31; --accent: #e08a4f; --ok: #7bc47f; --warn: #f0b14a; --err: #ff8a80; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, sans-serif; }
+a { color: var(--accent); }
+code { background: var(--soft); padding: 1px 5px; border-radius: 4px; font-size: 13px; overflow-wrap: anywhere; }
+header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 20px; margin: 0; }
+header .sub { color: var(--muted); flex: 1; }
+main { max-width: 1000px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+section.locked { opacity: .55; }
+section.locked .body { display: none; }
+h2 { font-size: 17px; margin: 0; display: flex; align-items: center; gap: 10px; }
+h2 .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--soft); font-size: 14px; flex: none; }
+section.done h2 .n { background: var(--ok); color: #fff; }
+h3 { font-size: 15px; margin: 16px 0 6px; }
+.body { margin-top: 12px; }
+.lockmsg { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+section:not(.locked) .lockmsg { display: none; }
+.help { background: var(--soft); border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.help p:first-child, .help h3:first-child { margin-top: 0; }
+.help ul, .help ol { margin: 6px 0; padding-left: 22px; }
+.help li { margin: 3px 0; }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 7px; padding: 6px 12px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .5; cursor: default; }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; max-width: 100%; }
+textarea { width: 100%; resize: vertical; min-height: 54px; }
+.muted { color: var(--muted); font-size: 13px; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 13px; border: 1px solid currentColor; }
+.ok { color: var(--ok); } .warn { color: var(--warn); } .err { color: var(--err); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.models { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; }
+progress { width: 160px; vertical-align: middle; }
+details summary { cursor: pointer; color: var(--accent); }
+#drop { display: block; border: 2px dashed var(--line); border-radius: 10px; padding: 22px; text-align: center; cursor: pointer; }
+#drop.over { border-color: var(--accent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.card { border: 1px solid var(--line); border-radius: 9px; padding: 10px; display: grid; gap: 8px; align-content: start; }
+.card .img { aspect-ratio: 832 / 1216; background: #fff; border-radius: 6px; display: grid; place-items: center; overflow: hidden; }
+.card .img img { width: 100%; height: 100%; object-fit: contain; }
+.card .name { font-weight: 600; overflow-wrap: anywhere; flex: 1; }
+.pending img { width: 100%; max-height: 180px; object-fit: contain; background: #fff; border-radius: 6px; }
+.sheet-out img { max-width: 100%; border: 1px solid var(--line); background: #fff; }
+.links a { margin-right: 14px; }
+.spin { width: 28px; height: 28px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: s 1s linear infinite; }
+@keyframes s { to { transform: rotate(360deg); } }
+@media (max-width: 600px) { header .sub { display: none; } main { padding: 10px; } .models { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>paper-minis</h1>
+  <span class="sub" data-t="tagline"></span>
+  <select id="lang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select>
+</header>
+<main>
+  <section id="s1">
+    <h2><span class="n">1</span><span data-t="s1"></span></h2>
+    <div class="body">
+      <div id="conn"></div>
+      <div class="row" style="margin-top:10px">
+        <label for="url" class="muted" data-t="address"></label>
+        <input id="url" style="width:min(340px,100%)" spellcheck="false">
+        <button id="test" data-t="test"></button>
+      </div>
+      <div id="s1help"></div>
+    </div>
+  </section>
+
+  <section id="s2" class="locked">
+    <h2><span class="n">2</span><span data-t="s2"></span></h2>
+    <p class="lockmsg" data-t="lock1"></p>
+    <div class="body">
+      <p class="muted" data-t="s2intro"></p>
+      <div id="models" class="models"></div>
+      <div id="s2help"></div>
+    </div>
+  </section>
+
+  <section id="s3" class="locked">
+    <h2><span class="n">3</span><span data-t="s3"></span></h2>
+    <p class="lockmsg" data-t="lock2"></p>
+    <div class="body">
+      <div class="help" data-html="s3help"></div>
+      <label id="drop"><input id="files" type="file" accept="image/*" multiple hidden><span data-t="drop"></span></label>
+      <div id="pending" class="grid" style="margin-top:12px"></div>
+      <div class="row" style="margin-top:12px"><button id="go" class="primary" data-t="generate" disabled></button></div>
+    </div>
+  </section>
+
+  <section id="s4" class="locked">
+    <h2><span class="n">4</span><span data-t="s4"></span></h2>
+    <p class="lockmsg" data-t="lock2"></p>
+    <div class="body">
+      <p class="muted" data-t="s4help"></p>
+      <div id="figs" class="grid"></div>
+    </div>
+  </section>
+
+  <section id="s5" class="locked">
+    <h2><span class="n">5</span><span data-t="s5"></span></h2>
+    <p class="lockmsg" data-t="lock2"></p>
+    <div class="body">
+      <div class="row" style="gap:16px">
+        <label><span data-t="height"></span> <input id="height" type="number" min="10" max="120" value="40" style="width:76px"> mm</label>
+        <label><span data-t="copies"></span> <input id="copies" type="number" min="1" max="50" value="1" style="width:66px"></label>
+        <button id="build" class="primary" data-t="build"></button>
+      </div>
+      <div id="sheet" class="sheet-out" style="margin-top:12px"></div>
+      <div class="help" data-html="s5help"></div>
+    </div>
+  </section>
+</main>
+<script>
+const T = {
+  en: {
+    tagline: "Turn character art into fold-over paper miniatures, with your own ComfyUI",
+    s1: "Connect to ComfyUI", s2: "Install the models", s3: "Add characters", s4: "Pick your figures", s5: "Print, cut and assemble",
+    lock1: "Finish step 1 first.", lock2: "Finish steps 1 and 2 first.",
+    address: "ComfyUI address", test: "Test",
+    connected: "Connected to ComfyUI", noconn: "Cannot reach ComfyUI", details: "Technical details",
+    whatis: `<p><b>ComfyUI</b> is the free program that generates the images on your graphics card. paper-minis sends it the work, so it must be installed and running.</p>`,
+    install: `<h3>Don't have ComfyUI yet?</h3><ul>
+      <li><b>Windows or macOS:</b> install <a href="https://www.comfy.org/download" target="_blank" rel="noopener">ComfyUI Desktop</a>.</li>
+      <li><b>Windows, portable version:</b> <a href="https://docs.comfy.org/installation/comfyui_portable_windows" target="_blank" rel="noopener">ComfyUI portable</a>.</li>
+      <li><b>Linux:</b> <a href="https://docs.comfy.org/installation/manual_install" target="_blank" rel="noopener">manual install</a>.</li></ul>
+      <p class="muted">Graphics card: about 24 GB of video memory is comfortable; 12–16 GB works, more slowly.</p>`,
+    reach: `<h3>Let paper-minis connect to it</h3><p>Start ComfyUI so it accepts connections from paper-minis, then enter its address above and click <b>Test</b>:</p><ul>
+      <li><b>ComfyUI Desktop:</b> Settings → Server-Config → <i>Listen Address</i> = <code>0.0.0.0</code>, restart it. Address: <code>{h}:8000</code></li>
+      <li><b>Portable:</b> add <code>--listen</code> at the end of the line in <code>run_nvidia_gpu.bat</code>. Address: <code>{h}:8188</code></li>
+      <li><b>Manual install:</b> <code>python main.py --listen</code>. Address: <code>{h}:8188</code></li>
+      <li><b>On another computer:</b> use its IP, e.g. <code>http://192.168.1.20:8188</code></li></ul>`,
+    dockerhost: `<p class="muted">paper-minis runs in Docker: there, <code>localhost</code> is the container itself, so your computer is <code>host.docker.internal</code>.</p>`,
+    outdated: `<h3>Update ComfyUI</h3><p>Your ComfyUI is too old for the FLUX.2 [klein] model. <a href="https://docs.comfy.org/installation/update_comfyui" target="_blank" rel="noopener">Update it</a> (ComfyUI Desktop updates itself on restart; portable: <code>update\\update_comfyui.bat</code>; manual install: <code>git pull</code> then <code>pip install -r requirements.txt</code>), restart it and click <b>Test</b>. Missing: `,
+    s2intro: "paper-minis uses the FLUX.2 [klein] 9B model. ComfyUI needs these 3 files (about 18.5 GB) in its models folder. You can also pick your own copies in the lists.",
+    diffusion_model: "Diffusion model", text_encoder: "Text encoder", vae: "VAE", none: "— missing —", official: "official file",
+    allok: "All models are ready.",
+    license: `<h3>Accept the model license (once)</h3><p>The FLUX.2 [klein] 9B model is free for <b>non-commercial use</b> under the FLUX Non-Commercial License. To download it:</p><ol>
+      <li>Create a free <a href="https://huggingface.co/join" target="_blank" rel="noopener">Hugging Face account</a> (or log in).</li>
+      <li>Open <a href="{page}" target="_blank" rel="noopener">the model page</a> and accept the license.</li></ol>`,
+    tokenstep: `<ol start="3"><li>Create a <b>Read</b> token on <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a> and paste it below. It is only used for this download and never saved.</li></ol>`,
+    token: "Hugging Face token", missingdl: "Download the missing models", queued: "waiting",
+    manual: `<h3>Download them</h3><p>Download each missing file and put it in your ComfyUI <code>models</code> folder, then click <b>Check again</b>:</p>`,
+    where: `<p class="muted">Where is the <code>models</code> folder? ComfyUI Desktop: inside the folder chosen at install time. Portable: <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Manual install: <code>ComfyUI/models</code>. ComfyUI sees new files without restarting.</p>`,
+    auto: `<details><summary>Let paper-minis download them for you</summary><p class="muted">In <code>docker-compose.yml</code>, uncomment <code>COMFYUI_MODELS_DIR: /models</code> and the volume line, set it to your ComfyUI models folder (e.g. <code>/home/me/ComfyUI/models:/models</code>), then run <code>docker compose up -d</code> again.</p></details>`,
+    recheck: "Check again",
+    s3help: `<ul><li>One character per image, any style: painting, photo, drawing. It may be cropped at the waist, legs and boots are completed.</li>
+      <li>The description is optional but helps a lot: class, gear, anything the image doesn't show or the model gets wrong. E.g. <i>a tiefling rogue holding 2 daggers, purple skin, golden eyes</i>. English or French.</li>
+      <li>Only describe what should appear: even "no shield" tends to add a shield.</li></ul>`,
+    drop: "Drop illustrations here or click to choose",
+    desc: "Description (optional): class, gear, traits…",
+    generate: "Generate", remove: "Remove", regenerate: "Regenerate", del: "Delete", include: "On the sheet", unfolded: "Unfolded figure",
+    generating: "Generating…",
+    s4help: "Each generation takes about 30 seconds (the first one longer, while ComfyUI loads the models) and picks a random pose. Not happy? Edit the description if needed and click Regenerate. Untick the figures you don't want to print.",
+    nofigs: "No figures yet: add characters in step 3.",
+    height: "Height, feet to top of head", copies: "Copies of each", build: "Build the sheet",
+    pick: "Select at least one generated figure.", pdf: "PDF to print", zip: "Everything (zip)", page: "Sheet", cut: "laser SVG", png: "PNG",
+    s5help: `<h3>Print</h3><ul><li>Print the <b>PDF</b> with scaling <b>None</b> / <b>Actual size</b> (in most PDF viewers: Print → Page handling). Don't print the PNG from an image viewer: they stretch pictures to the page.</li>
+      <li>Check the printed frame with a ruler: its size is written in its corner. 40 mm suits human-size heroes on a standard battle map.</li></ul>
+      <h3>Cut</h3><ul><li><b>By hand:</b> cut along the outer edge of the black border.</li>
+      <li><b>Laser cutter:</b> import the SVG at 1:1 in millimetres. Green = frame, red = cuts, blue = folds. Use the laser's framing to line it up with the printed frame, then cut the red layer. Turn the green layer off (or give it no power), and use a very light power on the blue layer to score the folds if you like. Cuts run 0.3 mm inside the black border, so small offsets stay invisible.</li></ul>
+      <h3>Assemble</h3><ol><li>Fold in the middle of the black base, so both sides face outwards.</li><li>Glue the two sides back to back.</li><li>Glue the base on a stand: a coin, a washer, a slotted plastic base…</li></ol>`,
+  },
+  fr: {
+    tagline: "Transforme des illustrations de personnages en figurines en papier pliables, avec ton propre ComfyUI",
+    s1: "Connecter ComfyUI", s2: "Installer les modèles", s3: "Ajouter des personnages", s4: "Choisir les figurines", s5: "Imprimer, découper, assembler",
+    lock1: "Termine d'abord l'étape 1.", lock2: "Termine d'abord les étapes 1 et 2.",
+    address: "Adresse de ComfyUI", test: "Tester",
+    connected: "Connecté à ComfyUI", noconn: "Impossible de joindre ComfyUI", details: "Détail technique",
+    whatis: `<p><b>ComfyUI</b> est le logiciel gratuit qui génère les images sur ta carte graphique. paper-minis lui envoie le travail : il doit donc être installé et lancé.</p>`,
+    install: `<h3>Pas encore ComfyUI ?</h3><ul>
+      <li><b>Windows ou macOS :</b> installe <a href="https://www.comfy.org/download" target="_blank" rel="noopener">ComfyUI Desktop</a>.</li>
+      <li><b>Windows, version portable :</b> <a href="https://docs.comfy.org/installation/comfyui_portable_windows" target="_blank" rel="noopener">ComfyUI portable</a>.</li>
+      <li><b>Linux :</b> <a href="https://docs.comfy.org/installation/manual_install" target="_blank" rel="noopener">installation manuelle</a>.</li></ul>
+      <p class="muted">Carte graphique : environ 24 Go de mémoire vidéo est confortable ; 12 à 16 Go fonctionne, plus lentement.</p>`,
+    reach: `<h3>Autoriser paper-minis à s'y connecter</h3><p>Lance ComfyUI pour qu'il accepte les connexions de paper-minis, puis saisis son adresse ci-dessus et clique sur <b>Tester</b> :</p><ul>
+      <li><b>ComfyUI Desktop :</b> Paramètres → Server-Config → <i>Listen Address</i> = <code>0.0.0.0</code>, puis redémarre-le. Adresse : <code>{h}:8000</code></li>
+      <li><b>Portable :</b> ajoute <code>--listen</code> à la fin de la ligne de <code>run_nvidia_gpu.bat</code>. Adresse : <code>{h}:8188</code></li>
+      <li><b>Installation manuelle :</b> <code>python main.py --listen</code>. Adresse : <code>{h}:8188</code></li>
+      <li><b>Sur un autre ordinateur :</b> utilise son IP, par ex. <code>http://192.168.1.20:8188</code></li></ul>`,
+    dockerhost: `<p class="muted">paper-minis tourne dans Docker : là-dedans, <code>localhost</code> désigne le conteneur lui-même, ton ordinateur s'appelle donc <code>host.docker.internal</code>.</p>`,
+    outdated: `<h3>Mettre ComfyUI à jour</h3><p>Ton ComfyUI est trop ancien pour le modèle FLUX.2 [klein]. <a href="https://docs.comfy.org/installation/update_comfyui" target="_blank" rel="noopener">Mets-le à jour</a> (ComfyUI Desktop se met à jour au redémarrage ; portable : <code>update\\update_comfyui.bat</code> ; installation manuelle : <code>git pull</code> puis <code>pip install -r requirements.txt</code>), redémarre-le et clique sur <b>Tester</b>. Manque : `,
+    s2intro: "paper-minis utilise le modèle FLUX.2 [klein] 9B. ComfyUI a besoin de ces 3 fichiers (environ 18,5 Go) dans son dossier models. Tu peux aussi choisir tes propres fichiers dans les listes.",
+    diffusion_model: "Modèle de diffusion", text_encoder: "Encodeur de texte", vae: "VAE", none: "— absent —", official: "fichier officiel",
+    allok: "Tous les modèles sont prêts.",
+    license: `<h3>Accepter la licence du modèle (une seule fois)</h3><p>Le modèle FLUX.2 [klein] 9B est gratuit pour un <b>usage non commercial</b> (licence FLUX Non-Commercial). Pour le télécharger :</p><ol>
+      <li>Crée un <a href="https://huggingface.co/join" target="_blank" rel="noopener">compte Hugging Face</a> gratuit (ou connecte-toi).</li>
+      <li>Ouvre <a href="{page}" target="_blank" rel="noopener">la page du modèle</a> et accepte la licence.</li></ol>`,
+    tokenstep: `<ol start="3"><li>Crée un jeton <b>Read</b> sur <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a> et colle-le ci-dessous. Il ne sert qu'à ce téléchargement et n'est jamais enregistré.</li></ol>`,
+    token: "Jeton Hugging Face", missingdl: "Télécharger les modèles manquants", queued: "en attente",
+    manual: `<h3>Les télécharger</h3><p>Télécharge chaque fichier manquant et place-le dans le dossier <code>models</code> de ComfyUI, puis clique sur <b>Vérifier à nouveau</b> :</p>`,
+    where: `<p class="muted">Où est le dossier <code>models</code> ? ComfyUI Desktop : dans le dossier choisi à l'installation. Portable : <code>ComfyUI_windows_portable\\ComfyUI\\models</code>. Installation manuelle : <code>ComfyUI/models</code>. ComfyUI voit les nouveaux fichiers sans redémarrer.</p>`,
+    auto: `<details><summary>Laisser paper-minis les télécharger pour toi</summary><p class="muted">Dans <code>docker-compose.yml</code>, décommente <code>COMFYUI_MODELS_DIR: /models</code> et la ligne de volume, mets-y ton dossier models de ComfyUI (par ex. <code>/home/moi/ComfyUI/models:/models</code>), puis relance <code>docker compose up -d</code>.</p></details>`,
+    recheck: "Vérifier à nouveau",
+    s3help: `<ul><li>Un personnage par image, n'importe quel style : peinture, photo, dessin. Elle peut être coupée à la taille : jambes et bottes sont complétées.</li>
+      <li>La description est facultative mais aide beaucoup : classe, équipement, tout ce que l'image ne montre pas ou que le modèle rate. Ex. <i>une tieffeline roublarde avec 2 dagues, peau violette, yeux dorés</i>. En français ou en anglais.</li>
+      <li>Ne décris que ce qui doit apparaître : même « sans bouclier » a tendance à ajouter un bouclier.</li></ul>`,
+    drop: "Dépose les illustrations ici ou clique pour choisir",
+    desc: "Description (facultative) : classe, équipement, traits…",
+    generate: "Générer", remove: "Retirer", regenerate: "Régénérer", del: "Supprimer", include: "Sur la planche", unfolded: "Figurine dépliée",
+    generating: "Génération…",
+    s4help: "Chaque génération prend environ 30 secondes (la première plus longtemps, le temps que ComfyUI charge les modèles) et tire une pose au hasard. Pas satisfait ? Corrige la description si besoin et clique sur Régénérer. Décoche les figurines à ne pas imprimer.",
+    nofigs: "Pas encore de figurines : ajoute des personnages à l'étape 3.",
+    height: "Hauteur, des pieds au sommet de la tête", copies: "Exemplaires de chacune", build: "Créer la planche",
+    pick: "Sélectionne au moins une figurine générée.", pdf: "PDF à imprimer", zip: "Tout (zip)", page: "Planche", cut: "SVG laser", png: "PNG",
+    s5help: `<h3>Imprimer</h3><ul><li>Imprime le <b>PDF</b> avec la mise à l'échelle <b>Aucune</b> / <b>Taille réelle</b> (dans la plupart des lecteurs PDF : Imprimer → Gestion de page). N'imprime pas le PNG depuis une visionneuse d'images : elles étirent l'image à la page.</li>
+      <li>Vérifie le cadre imprimé à la règle : sa taille est écrite dans son coin. 40 mm convient aux héros de taille humaine sur un plateau standard.</li></ul>
+      <h3>Découper</h3><ul><li><b>À la main :</b> découpe le long du bord extérieur de la bordure noire.</li>
+      <li><b>Découpeur laser :</b> importe le SVG à l'échelle 1:1 en millimètres. Vert = cadre, rouge = découpes, bleu = plis. Utilise le cadrage du laser pour l'aligner sur le cadre imprimé, puis découpe le calque rouge. Désactive le calque vert (ou mets-le sans puissance), et utilise une puissance très faible sur le bleu pour marquer les plis si tu veux. Les découpes passent 0,3 mm à l'intérieur de la bordure noire : un léger décalage reste invisible.</li></ul>
+      <h3>Assembler</h3><ol><li>Plie au milieu du socle noir, les deux faces vers l'extérieur.</li><li>Colle les deux faces dos à dos.</li><li>Colle le socle sur un support : une pièce, une rondelle, un socle en plastique fendu…</li></ol>`,
+  },
+};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+let lang = (() => { try { return localStorage.getItem("lang"); } catch { return null; } })() || (navigator.language.startsWith("fr") ? "fr" : "en");
+const t = (k) => T[lang][k] ?? T.en[k] ?? k;
+let pending = [], figures = [], status = null, excluded = new Set();
+try { excluded = new Set(JSON.parse(localStorage.getItem("excluded") || "[]")); } catch {}
+const saveExcluded = () => { try { localStorage.setItem("excluded", JSON.stringify([...excluded])); } catch {} };
+const json = (body) => ({method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+
+function applyLang() {
+  document.documentElement.lang = lang; $("#lang").value = lang;
+  document.querySelectorAll("[data-t]").forEach((el) => el.textContent = t(el.dataset.t));
+  document.querySelectorAll("[data-html]").forEach((el) => el.innerHTML = t(el.dataset.html));
+  $("#dl")?.remove();
+  renderStatus(); renderPending(); renderFigures();
+}
+$("#lang").onchange = (e) => { lang = e.target.value; try { localStorage.setItem("lang", lang); } catch {} applyLang(); };
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch {} throw new Error(m); }
+  return r.json();
+}
+
+// steps 1 and 2: ComfyUI and models
+let statusTimer;
+async function refreshStatus() {
+  clearTimeout(statusTimer);
+  try { status = await api("/api/status"); } catch (e) { status = {error: e.message, models: {}, missing_nodes: []}; }
+  renderStatus();
+  const busy = Object.values(status.models || {}).some((m) => ["queued", "downloading"].includes(m.download.status));
+  statusTimer = setTimeout(refreshStatus, busy ? 1500 : 10000);
+}
+$("#test").onclick = async () => {
+  $("#test").disabled = true;
+  try { status = await api("/api/comfyui", json({url: $("#url").value})); renderStatus(); } catch (e) { alert(e.message); }
+  $("#test").disabled = false;
+};
+$("#url").onkeydown = (e) => { if (e.key === "Enter") $("#test").click(); };
+
+function setStep(id, state) {
+  const s = $(id);
+  s.classList.toggle("locked", state === "locked");
+  s.classList.toggle("done", state === "done");
+}
+
+function renderStatus() {
+  if (!status) return;
+  if (document.activeElement !== $("#url")) $("#url").value = status.comfyui_url || "";
+  const host = status.in_docker ? "http://host.docker.internal" : "http://127.0.0.1";
+  const step1 = status.comfyui && !status.missing_nodes.length;
+  if (status.comfyui) {
+    $("#conn").innerHTML = `<span class="pill ok">${t("connected")}</span>`;
+    $("#s1help").innerHTML = status.missing_nodes.length
+      ? `<div class="help">${t("outdated")}<code>${esc(status.missing_nodes.join(", "))}</code></p></div>` : "";
+  } else {
+    $("#conn").innerHTML = `<span class="pill err">${t("noconn")}</span>` +
+      (status.error ? `<details class="muted" style="margin-top:6px"><summary>${t("details")}</summary>${esc(status.error)}</details>` : "");
+    $("#s1help").innerHTML = `<div class="help">${t("whatis")}${t("install")}${t("reach").replaceAll("{h}", host)}${status.in_docker ? t("dockerhost") : ""}</div>`;
+  }
+  const roles = Object.entries(status.models || {});
+  const step2 = step1 && roles.length && roles.every(([, m]) => m.selected);
+  setStep("#s1", step1 ? "done" : "open");
+  setStep("#s2", !step1 ? "locked" : step2 ? "done" : "open");
+  for (const id of ["#s3", "#s4", "#s5"]) setStep(id, step2 ? "open" : "locked");
+  if (step2 && !figures.length) refreshFigures();
+  if (!step1) return;
+
+  $("#models").innerHTML = roles.map(([role, m]) => {
+    const opts = [`<option value="">${t("none")}</option>`].concat(m.available.map((f) => `<option ${f === m.selected ? "selected" : ""}>${esc(f)}</option>`)).join("");
+    const d = m.download;
+    const prog = d.status === "downloading" ? ` <progress value="${d.done}" max="${d.total || 1}"></progress> ${(d.done / 1e9).toFixed(1)} / ${(d.total / 1e9).toFixed(1)} GB`
+      : d.status === "queued" ? ` <span class="muted">${t("queued")}</span>`
+      : d.status === "error" ? ` <span class="err">${esc(d.error)}</span>` : "";
+    return `<span>${m.selected ? "✅" : "⬜"} ${t(role)}</span><span><select data-role="${role}" aria-label="${t(role)}">${opts}</select>
+      <span class="muted">${t("official")} : ${esc(m.official)} (${esc(m.size)})</span>${prog}</span>`;
+  }).join("");
+  document.querySelectorAll("#models select").forEach((s) => s.onchange = () => {
+    if (s.value) api("/api/models/select", json({role: s.dataset.role, file: s.value})).then(refreshStatus);
+  });
+
+  const missing = roles.filter(([, m]) => !m.selected && m.download.status !== "done");
+  if (!missing.length) { $("#s2help").innerHTML = step2 ? `<p class="ok">${t("allok")}</p>` : ""; return; }
+  const gated = missing.find(([, m]) => m.gated);
+  const lic = gated ? t("license").replace("{page}", esc(gated[1].page)) : "";
+  if (status.can_download) {
+    if ($("#dl")) return;  // keep a token being typed
+    $("#s2help").innerHTML = `<div class="help" id="dl">${lic}${gated ? t("tokenstep") +
+      `<label>${t("token")}<br><input id="token" type="password" autocomplete="off" style="width:min(420px,100%)"></label><br>` : ""}
+      <button id="dlbtn" class="primary" style="margin-top:8px">${t("missingdl")}</button></div>`;
+    $("#dlbtn").onclick = async () => {
+      try { await api("/api/models/download", json({roles: missing.map(([r]) => r), token: $("#token")?.value || ""})); } catch (e) { alert(e.message); }
+      $("#dl").remove(); refreshStatus();
+    };
+  } else {
+    $("#s2help").innerHTML = `<div class="help">${lic}${t("manual")}<ul>` + missing.map(([role, m]) =>
+      `<li>${t(role)} : <a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.official)}</a> (${esc(m.size)}) → <code>models/${esc(m.folder)}/</code></li>`).join("") +
+      `</ul>${t("where")}<button id="recheck">${t("recheck")}</button>${t("auto")}</div>`;
+    $("#recheck").onclick = refreshStatus;
+  }
+}
+
+// step 3: upload, one description per image
+const drop = $("#drop");
+$("#files").onchange = (e) => addPending(e.target.files);
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); addPending(e.dataTransfer.files); };
+function addPending(files) {
+  for (const f of files) if (f.type.startsWith("image/")) pending.push({file: f, url: URL.createObjectURL(f), desc: ""});
+  $("#files").value = ""; renderPending();
+}
+function renderPending() {
+  $("#pending").innerHTML = pending.map((p, i) => `<div class="card pending"><img src="${p.url}" alt="">
+    <div class="row"><span class="name">${esc(p.file.name)}</span><button data-rm="${i}">${t("remove")}</button></div>
+    <textarea data-desc="${i}" placeholder="${esc(t("desc"))}" aria-label="${esc(t("desc"))}">${esc(p.desc)}</textarea></div>`).join("");
+  document.querySelectorAll("[data-desc]").forEach((ta) => ta.oninput = () => pending[ta.dataset.desc].desc = ta.value);
+  document.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => { URL.revokeObjectURL(pending[b.dataset.rm].url); pending.splice(b.dataset.rm, 1); renderPending(); });
+  $("#go").disabled = !pending.length;
+}
+$("#go").onclick = async () => {
+  const fd = new FormData();
+  pending.forEach((p) => { fd.append("files", p.file); fd.append("descriptions", p.desc); });
+  $("#go").disabled = true;
+  try { await api("/api/figures", {method: "POST", body: fd}); pending.forEach((p) => URL.revokeObjectURL(p.url)); pending = []; $("#s4").scrollIntoView({behavior: "smooth"}); }
+  catch (e) { alert(e.message); }
+  renderPending(); refreshFigures();
+};
+
+// step 4: figures
+let figTimer;
+async function refreshFigures() {
+  clearTimeout(figTimer);
+  try { figures = await api("/api/figures"); } catch { figures = []; }
+  renderFigures();
+  figTimer = setTimeout(refreshFigures, figures.some((f) => ["queued", "generating"].includes(f.status)) ? 2000 : 10000);
+}
+function renderFigures() {
+  const host = $("#figs");
+  if (host.contains(document.activeElement) && document.activeElement.tagName === "TEXTAREA") return;  // don't wipe a description being edited
+  if (!figures.length) { host.innerHTML = `<p class="muted" style="grid-column:1/-1">${t("nofigs")}</p>`; return; }
+  host.innerHTML = figures.slice().reverse().map((f) => {
+    const busy = ["queued", "generating"].includes(f.status);
+    const img = f.status === "done" ? `<img src="/api/figures/${f.id}/raw.png?v=${f.updated}" alt="${esc(f.name)}">`
+      : busy ? `<div style="text-align:center"><div class="spin" style="margin:auto"></div><p class="muted">${t(f.status)}</p></div>`
+      : `<p class="err" style="padding:10px">${esc(f.error)}</p>`;
+    return `<div class="card"><div class="img">${img}</div>
+      <div class="row"><span class="name">${esc(f.name)}</span>
+        ${f.status === "done" ? `<label class="muted"><input type="checkbox" data-inc="${f.id}" ${excluded.has(f.id) ? "" : "checked"}> ${t("include")}</label>` : ""}</div>
+      <textarea data-fdesc="${f.id}" placeholder="${esc(t("desc"))}" aria-label="${esc(t("desc"))}">${esc(f.description)}</textarea>
+      <div class="row"><button data-regen="${f.id}" ${busy ? "disabled" : ""}>${t("regenerate")}</button>
+        <button data-del="${f.id}" ${busy ? "disabled" : ""}>${t("del")}</button>
+        ${f.status === "done" ? `<a class="muted" href="/api/figures/${f.id}/figure.png?v=${f.updated}" target="_blank">${t("unfolded")}</a>` : ""}</div></div>`;
+  }).join("");
+  host.querySelectorAll("[data-inc]").forEach((c) => c.onchange = () => { c.checked ? excluded.delete(c.dataset.inc) : excluded.add(c.dataset.inc); saveExcluded(); });
+  host.querySelectorAll("[data-regen]").forEach((b) => b.onclick = async () => {
+    const description = host.querySelector(`[data-fdesc="${b.dataset.regen}"]`).value;
+    try { await api(`/api/figures/${b.dataset.regen}/regenerate`, json({description})); } catch (e) { alert(e.message); }
+    refreshFigures();
+  });
+  host.querySelectorAll("[data-del]").forEach((b) => b.onclick = async () => {
+    try { await api(`/api/figures/${b.dataset.del}`, {method: "DELETE"}); } catch (e) { alert(e.message); }
+    refreshFigures();
+  });
+}
+document.addEventListener("focusout", (e) => { if (e.target.matches?.("[data-fdesc]")) setTimeout(renderFigures, 0); });
+
+// step 5: sheet
+$("#build").onclick = async () => {
+  const ids = figures.filter((f) => f.status === "done" && !excluded.has(f.id)).map((f) => f.id);
+  if (!ids.length) return alert(t("pick"));
+  $("#build").disabled = true; $("#sheet").innerHTML = `<div class="spin"></div>`;
+  try {
+    const s = await api("/api/sheets", json({ids, height_mm: +$("#height").value, copies: +$("#copies").value, lang}));
+    const base = `/api/sheets/${s.id}/`;
+    let html = `<p class="links"><a href="${base}sheets.pdf" target="_blank"><b>${t("pdf")}</b></a><a href="${base}all.zip">${t("zip")}</a></p>`;
+    for (let i = 1; i <= s.pages; i++)
+      html += `<p class="links">${t("page")} ${i} : <a href="${base}sheet-${i}.png" target="_blank">${t("png")}</a><a href="${base}sheet-${i}-cut.svg" download>${t("cut")}</a></p><img src="${base}sheet-${i}.png" alt="${t("page")} ${i}">`;
+    $("#sheet").innerHTML = html;
+  } catch (e) { $("#sheet").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+  $("#build").disabled = false;
+};
+
+applyLang(); refreshStatus();
+</script>
+</body>
+</html>
